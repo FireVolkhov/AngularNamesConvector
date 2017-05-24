@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<input id="text" type="text" oninput="convert(this.value)"/>
+<style>
+    #text{
+        width: 100%;
+        height: 56px;
+        font-size: 32px;
+        text-align: center;
+    }
+</style>
+<script>
+    /**
+     * @param {string} value
+     */
+    function convert(value) {
+        const isCamelCaseString = value !== value.toLowerCase();
+        const isDashString = -1 < value.indexOf('-');
+
+        if (isCamelCaseString && isDashString) {
+            return;
+        }
+
+        if (isCamelCaseString) {
+            copyToClipboard(camelCaseToDash(value));
+        }
+
+        if (isDashString) {
+            copyToClipboard(dashToCamelCase(value));
+        }
+    }
+
+    /**
+     * @param {string} string
+     * @return {string}
+     */
+    function camelCaseToDash (string) {
+        return string
+                .split('')
+                .map(function (c) {
+                    if (c !== c.toLowerCase()) {
+                        return '-' + c.toLowerCase()
+                    } else {
+                        return c;
+                    }
+                })
+                .join('')
+        ;
+    }
+
+    /**
+     * @param {string} string
+     * @return {string}
+     */
+    function dashToCamelCase (string) {
+        return string
+                .split('-')
+                .map(function (s, index) {
+                    if (0 < index) {
+                        return s.substr(0, 1)[0].toUpperCase() + s.substr(1);
+                    } else {
+                        return s;
+                    }
+                })
+                .join('')
+        ;
+    }
+
+    /**
+     * @param {string} string
+     */
+    function copyToClipboard (string) {
+        const input = document.getElementById('text');
+
+        input.addEventListener('copy', _onCopy);
+        document.execCommand('copy');
+        input.removeEventListener('copy', _onCopy);
+
+        /**
+         * @param {Event} event
+         * @private
+         */
+        function _onCopy (event) {
+            event.preventDefault();
+
+            if (event.clipboardData) {
+                event.clipboardData.setData('text/plain', string);
+            } else if (window.clipboardData) {
+                window.clipboardData.setData('Text', string);
+            }
+
+            input.value = string;
+        }
+    }
+</script>
+
+</body>
+</html>
